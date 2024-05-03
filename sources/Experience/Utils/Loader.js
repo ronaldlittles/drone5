@@ -1,9 +1,17 @@
+import * as THREE from "three";
 import EventEmitter from './EventEmitter.js'
 import Experience from '../Experience.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
+import { TTFLoader } from "three/examples/jsm/loaders/TTFLoader.js";
+//import { BasisTextureLoader } from 'three/examples/jsm/loaders/BasisTextureLoader.js'
+import { FontLoader, Font } from "three/examples/jsm/loaders/FontLoader.js";
+import { CubeTextureLoader, TextureLoader, VideoTexture } from 'three'
+//import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js"
+import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js'
+
 
 export default class Resources extends EventEmitter
 {
@@ -13,7 +21,6 @@ export default class Resources extends EventEmitter
     constructor()
     {
         super()
-
         this.experience = new Experience()
         this.renderer = this.experience.renderer.instance
 
@@ -52,8 +59,73 @@ export default class Resources extends EventEmitter
             }
         })
 
-        // Draco
+        //Textures
+        const textureLoader = new TextureLoader()
+        
+        this.loaders.push({
+            extensions: ['jpg'],
+            action: (_resource) =>
+            {
+                textureLoader.load(_resource.source, (_data) =>
+                {
+                    this.fileLoadEnd(_resource, _data)
+                })
+            }
+        })
+
+
+        //SVGLoader
+
+        const svgLoader = new SVGLoader()
+        
+        this.loaders.push({
+            extensions: ['svg'],
+            action: (_resource) =>
+            {
+                svgLoader.load(_resource.source, (_data) =>
+                {
+                    this.fileLoadEnd(_resource, _data)
+                })
+            }
+        })
+    
+
+        // Basis images (depricated - read warning upon implementation)
+        /*const basisLoader = new BasisTextureLoader()
+        basisLoader.setTranscoderPath('basis/')
+        basisLoader.detectSupport(this.renderer)
+
+        this.loaders.push({
+            extensions: ['basis'],
+            action: (_resource) =>
+            {
+                basisLoader.load(_resource.source, (_data) =>
+                {
+                    this.fileLoadEnd(_resource, _data)
+                })
+            }
+        })*/
+
+                // Video
+
+                
+        /*const videoLoader = new  VideoTexture();
+
+        this.loaders.push({
+            extensions: ['mp4'],
+            action: (_resource) =>
+            {
+                videoLoader.load(_resource.source, (_data) =>
+                {
+                    this.fileLoadEnd(_resource, _data);
+                });
+            }
+        });*/  
+
+
+         //Draco
         const dracoLoader = new DRACOLoader()
+        
         dracoLoader.setDecoderPath('draco/')
         dracoLoader.setDecoderConfig({ type: 'js' })
 
@@ -68,7 +140,43 @@ export default class Resources extends EventEmitter
                     DRACOLoader.releaseDecoderModule()
                 })
             }
+        }) 
+
+    
+
+        //FONT
+        const fontLoader = new FontLoader()
+        
+       
+        this.loaders.push({
+            extensions: ['json'],
+            action: (_resource) =>
+            {
+                fontLoader.load(_resource.source, (_data) =>
+                {
+                    this.fileLoadEnd(_resource, _data)
+                })
+            }
         })
+
+        const ttfLoader = new TTFLoader()
+        
+       
+        this.loaders.push({
+            extensions: ['ttf'],
+            action: (_resource) =>
+            {
+                ttfLoader.load(_resource.source, (_data) =>
+                {
+                    this.fileLoadEnd(_resource, _data)
+                })
+            }
+        })
+
+
+
+        
+
 
         // GLTF
         const gltfLoader = new GLTFLoader()
@@ -107,6 +215,20 @@ export default class Resources extends EventEmitter
             action: (_resource) =>
             {
                 rgbeLoader.load(_resource.source, (_data) =>
+                {
+                    this.fileLoadEnd(_resource, _data)
+                })
+            }
+        })
+
+        const cubeTextureLoader = new CubeTextureLoader()
+      
+        this.loaders.push({
+            extensions: ['png'],
+            action: (_resource) =>
+            {
+               
+                cubeTextureLoader.load(_resource.source, (_data) =>
                 {
                     this.fileLoadEnd(_resource, _data)
                 })

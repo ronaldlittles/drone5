@@ -24,6 +24,12 @@ export default class Sizes extends EventEmitter
         window.addEventListener('resize', this.resize)
 
         this.resize()
+
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.aspect = this.width / this.height;
+        this.pixelRatio = Math.min(Math.max(window.devicePixelRatio, 1), 2)
+        this.frustrum = 25;
     }
 
     /**

@@ -1,19 +1,190 @@
-*
-{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  touch-action: none;
 }
 
-html,
-body
-{
-    overflow: hidden;
+.container {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
-.experience
-{
-    position: fixed;
-    width: 100vw;
-    height: 100vh;
+.experience {
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  
+}
+
+.popup{
+
+position: absolute;
+
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+width: 275px;
+height: 350px;
+padding: 20px;
+background: 'transparent';
+border-radius: 2px;
+
+z-index: 9999;
+
+
+}
+
+p{
+
+  margin: 0;
+  padding: 0;
+  justify-content: center;
+  font-size: 20px;
+  color: #fff;
+  text-shadow: 1px 1px #000000;
+  text-align: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+
+}
+
+#popuptext1{
+
+  font-size: 36px;
+  color: #fFF;
+  text-shadow: 1px 1px #000000;
+  padding-bottom: 5px;
+
+}
+
+#popuptext2{
+  
+font-size: 14px;
+color: #f00a0a;
+text-shadow: none;
+padding-bottom: 10px;
+
+}
+
+button {
+
+  position: absolute;
+
+  cursor: pointer;
+  background-color: transparent;
+  color: #fff;
+  font-size: 8px;
+  font-weight: bold;
+  text-transform: uppercase;
+  
+  text-shadow: 1px 1px #414040;
+  border-radius: 50%;
+  /*background-image: url(../assets/steer.jpg);*/
+  background-color: rgba(1, 1, 1, 0.2); 
+  /* Here, 0.5 sets the opacity (0 = fully transparent, 1 = fully opaque) */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 175px 100px;
+  width: 35px;
+  height: 35px;
+  box-shadow: 2px 2px 2px #111111;
+}
+
+.top-left {
+  top: 10px;
+  left: 10px;
+}
+
+.top-right {
+  position: absolute;
+  z-index: 10;
+  top: 15px;
+  right: 100px;
+  width: 100px;
+  height: 100px;
+  opacity: 100%;
+  
+  padding: 0;
+  box-shadow: 3px 2px 2px #030303;
+  opacity: 100%;
+  border-radius: 85%;
+
+  padding: 0;
+  background-image: url('/assets/wip.png');
+  background-position: center;
+  background-size: contain;
+  
+}
+
+.bottom-left {
+  position: absolute;
+  bottom: 100px;
+  left: 0;
+}
+.bottom-left2 {
+  position: absolute;
+  bottom: 100px;
+  left: 50px;
+  
+}
+
+.bottom-left3 {
+  position: absolute;
+  bottom: 100px;
+  left: 100px;
+
+}
+
+.bottom-right {
+  bottom: 50px;
+  right:  70px;
+  width: 75px;
+  height: 75px;
+  font-size: 14px;
+  font-weight: bold;
+ 
+}
+
+.bottom-left button {
+  margin-bottom: 10px;
+}
+
+/* Additional styles for the new div elements */
+#label,
+#label3,
+#label4 {
+  position: absolute;
+  font-family: sans-serif;
+  color: red;
+  text-shadow: 2px 2px #ff0000;
+}
+
+#label {
+  top: 50px; /* Adjust as needed for the top label */
+  left: 50%; /* Align center */
+  transform: translateX(-50%);
+  font-size: 36px;
+}
+
+#label3,
+#label4 {
+  font-size: 24px;
+  padding: 10px 10px 10px 10px;
+  text-shadow: 2px 2px #000000;
+}
+
+#label3 {
+  bottom: 20px; /* Adjust for the bottom-left label */
+  left: 20px;
+}
+
+#label4 {
+  bottom: 20px; /* Adjust for the bottom-right label */
+  right: 20px;
 }

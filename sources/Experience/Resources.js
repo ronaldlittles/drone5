@@ -15,22 +15,26 @@ export default class Resources extends EventEmitter
         this.loader = new Loader({ renderer: this.renderer })
 
         this.groups = {}
+       
         this.groups.assets = [..._assets]
+      
         this.groups.loaded = []
+     
         this.groups.current = null
         this.loadNextGroup()
-
+      
+     
         // Loader file end event
         this.loader.on('fileEnd', (_resource, _data) =>
         {
             let data = _data
 
             // Convert to texture
-            if(_resource.type === 'texture')
+            if(_resource.type === 'texture' )
             {
                 if(!(data instanceof THREE.Texture))
                 {
-                    data = new THREE.Texture(_data)
+                    data = new THREE.Texture(_data) 
                 }
                 data.needsUpdate = true
             }
@@ -49,7 +53,7 @@ export default class Resources extends EventEmitter
             
             // Trigger
             this.trigger('groupEnd', [this.groups.current])
-
+          
             if(this.groups.assets.length > 0)
             {
                 this.loadNextGroup()
@@ -63,8 +67,11 @@ export default class Resources extends EventEmitter
 
     loadNextGroup()
     {
+
+      
         this.groups.current = this.groups.assets.shift()
         this.groups.current.toLoad = this.groups.current.items.length
+        
         this.groups.current.loaded = 0
 
         this.loader.load(this.groups.current.items)
@@ -83,6 +90,7 @@ export default class Resources extends EventEmitter
                 meshesGroups: [],
                 instancedMeshes: []
             })
+            console.log(groups.regex)
         }
 
         // Result
@@ -94,8 +102,9 @@ export default class Resources extends EventEmitter
         }
 
         return result
+       
     }
-
+   
     destroy()
     {
         for(const _itemKey in this.items)

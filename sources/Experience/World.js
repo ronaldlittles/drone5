@@ -1,293 +1,266 @@
-import * as THREE from 'three'
-import Experience from './Experience.js'
-
-//import WebGPU from 'three/examples/jsm/capabilities/WebGPU.js'
-//import WebGPURenderer from 'three/examples/jsm/renderers/webgpu/WebGPURenderer.js';
-
-import { RapierPhysics } from 'three/examples/jsm/physics/RapierPhysics.js'
+import * as THREE from "three";
+import Experience from "./Experience.js";
+import SceneWorld from "./sceneworld.js";
 
 
-//import CustomShaderMaterial from 'three-custom-shader-material/vanilla'
+//import PreLoader from "./preloader.js";
 
-import GSAP from "gsap";
+import Box from "./box.js";
+import Walls from "./walls.js"
 
-import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import TrackGeometry from "./trackgeometry.js";
+
+import Font from './font.js'
+
+import AnimationController from "./animationcontroller.js";
 
 
-//import wobbleVertexShader from '/shaders/vertex.glsl'
-//import wobbleFragmentShader from '/shaders/fragment.glsl'
+import Car from "./car.js";
+//import Drone from "./drone.js";
+import Controls from "./Controls.js";
+import Controls2 from "./controls2.js";
+import Floor from "./floor.js";
+import Particles from './particles.js'
+import FloorParticles from "./floorParticles.js";
+import { RollerCoasterGeometry } from "three/examples/jsm/misc/RollerCoaster.js";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import Video from "./video.js";
+import Menu from "./menu.js";
+import Raycaster from "./raycaster.js";
+import Drawing from './drawing.js';
+import TShirt from './tshirt.js'
+import UI from './UI.js'
 
-export default class World
-{
-    constructor(_options)
-    {
-        this.experience = new Experience()
-        this.config = this.experience.config
-        this.debug = this.experience.debug
-        this.time = this.experience.time
-        this.resources = this.experience.resources
-        this.scene = this.experience.scene
+import Debugger from './debugger.js'
+//import RaceTrack from './raceTrack.js'
+export default class World {
+  constructor(_options) {
+    this.experience = new Experience();
+    this.config = this.experience.config;
+
+    
+    this.resources = this.experience.resources;
+    this.scene = this.experience.scene;
+    this.scene2 = this.experience.scene2;
+    this.scene3 = this.experience.scene3;
+    
+    this.renderer = this.experience.renderer;
+    this.time = this.experience.time;
+    this.camera = this.experience.camera;
+    this.controls = this.experience.controls;
+    this.mouse = this.experience.mouse;
+
+    //this.resource = this.resources.items.lennaTexture
+
+    this.resources.on("_groupEnd", (_group) => {
+      if (_group.name === "base") {
+
+        //this.setPreLoader();
+        
+        //this.setRaceTrack()
+        //this.setSceneWorld();
+      
+        //this.setDrawing();
+        //this.setCar();
+        //this.setMenu();
+        //this.setFloor()
+        //this.setParticles()
+        //this.setTShirt();
+        
+        
+        this.setTrackGeometry()
+
+        this.setUI()
+        
+        this.setWalls()
+        this.setBox();
+        this.setAnimationController()
+        //this.setDrone();
+        
+        this.setRaycaster();
+        //this.setVideo();
+      
+        //this.setControls2();
+      
+        //this.setDebugger()
 
       
-
-        this.cubeArray = []
-        this.hand;
-        
-        this.resources.on('groupEnd', (_group) =>
-        {
-            if(_group.name === 'base')
-            {
-                this.setDummy()
-                this.setCube()
-            }
-        })
-    }
-
-    setDummy()
-    {
-
-      const loader = new GLTFLoader()
-
-        loader.load('/assets/model.gltf', (gltf) => {
-
-          //console.log(gltf.scene)
-
-          this.hand = gltf.scene
-
-          
-        this.scene.add(this.hand)
-
-        
-        this.hand.scale.set(10,10,10)
-
-        this.hand.rotation.set(Math.PI,0,0)
-        this.hand.position.x = -1
-
-        })
-
-        
-
-
-        /*const debugObject = {}
-        
-        debugObject.colorA = '#0000ff'
-        debugObject.colorB = '#ff0000'
-
-        this.uniforms = {
-          uTime: new THREE.Uniform(0),
-          uPositionFrequency: new THREE.Uniform(0.5),
-          uTimeFrequency: new THREE.Uniform(0.4),
-          uStrength: new THREE.Uniform(0.3),
-          uWarpPositionFrequency: new THREE.Uniform(0.38),
-          uWarpTimeFrequency: new THREE.Uniform(0.12),
-          uWarpStrength: new THREE.Uniform(1.7),
-          uColorA: new THREE.Uniform(new THREE.Color(debugObject.colorA)),
-          uColorB: new THREE.Uniform(new THREE.Color(debugObject.colorB))
-      }*/
-
-        this.resources.items.lennaTexture.encoding = THREE.sRGBEncoding
-        
-        this.cube1 = new THREE.Mesh(
-
-            new THREE.BoxGeometry(2, 2, 2),
-
-            /*new CustomShaderMaterial({
-
-          
-
-                baseMaterial:*/ new THREE.MeshBasicMaterial({
-
-                //vertexShader: wobbleVertexShader,
-                //fragmentShader: wobbleFragmentShader,
-                //uniforms: this.uniforms,
-                
-  
-             
-                //color: 0x0000ff,
-                //side: THREE.DoubleSide,
-                //clearcoat: 1.0,
-                //metalness: .1,
-                //roughness: .5,
-                //transparent: true,
-                //opacity: .8,
-                //transmission: .98,
-
-             map: this.resources.items.lennaTexture 
-            })
-        )
-
-       this.scene.add(this.cube1) 
-        this.cube1.rotation.x += Math.PI/2
-
-
-        this.cube1.position.set(4,0,-4)
-        //this.cube1.receiveShadow = true
-    
-        
-        this.light = new THREE.PointLight(0xff00ff,2.5)
-        this.scene.add(this.light)
-        this.light.lookAt(this.scene)
-        //this.light.castShadow = true
-      
-       
-    }
-
-        setCube(){
-
-
-            //TODO instanced mesh / audio / bvh-csg
-            
-            for(let i=0; i<100; i++){
-
-            this.cube2 = new THREE.Mesh(
-
-                    new RoundedBoxGeometry( .8, 1.5, .2, 24, 0.09 ),
-      
-    
-                new THREE.MeshPhysicalMaterial({
-                    color: 0x0000ff,
-                    side: THREE.DoubleSide,
-                    clearcoat: 1.0,
-                    metalness: .3,
-                    roughness: .3,
-                    transparent: true,
-                    opacity: .8,
-                    transmission: .98,
-                    //map: this.resources.items.lennaTexture 
-                })
-    
-            )
-
-            this.cube2.position.x = (i)*.05
-            
-            this.cube2.position.y = Math.random()*10-5
-            this.cube2.position.z= Math.random()*10-5
-    
-          this.scene.add(this.cube2) 
-          this.cube2.castShadow = true
-          this.cube2.scale.setScalar(.5)
-
-          this.cubeArray.push(this.cube2)
-        
-          }
-
-          
-          
-          this.light.position.set(10,10,10)
-
-          this.light2 = new THREE.DirectionalLight(0xffffff,2.7)
-          this.scene.add(this.light2)
-
-          this.light2.position.set(0,1,10)
-          this.light2.lookAt(this.scene)
-          this.light2.castShadow =true
-
-          this.mesh2 = new THREE.Mesh(
-            new THREE.BoxGeometry(8,.5,.5),
-            new THREE.MeshStandardMaterial({color: 'yellow'})
-          )
-
-          this.scene.add(this.mesh2)
-          this.mesh2.position.z=-1
-          this.mesh2.position.x = 3
-          this.mesh2.receiveShadow=true
-
-          let distance = 13.5;
-          let distance2 = 100.0;
-
-
-          let gt = GSAP.timeline({ repeat:2, duration:1 })
-
-          
-          console.log(gt)
-          
-          gt.to(this.cube2.position, 2, {
-
-
-            //x: this.cube2.position.x + Math.random() * distance - distance / 2,
-            //y: this.cube2.position.y + Math.random() * distance - distance / 2,
-            z: this.cube2.position.z + Math.random() * distance - distance / 2,
-            ease: 'power2.easeOut',
-            yoyo: true,
-            repeat: -1,
-            duration: 5,
-            delay: 2,
-         
-          });
-
-          gt.to(this.cube2.rotation, 5, {
-
-
-            //x: this.cube2.rotation.x + Math.random() * distance2 - distance2 / 2,
-            y: this.cube2.rotation.y + Math.random() * distance2 - distance2 / 2,
-            //z: this.cube2.rotation.z + Math.random() * distance2 - distance2 / 2,
-            ease: 'power2.easeOut',
-            yoyo: true,
-            repeat: -1,
-            duration: 5,
-            delay: 2,
-
-
-         
-          });
- 
-
-    /*if(this.debug){
-
-            //console.log(this.debug)
-            
-             this.debugFolder = this.debug.addFolder('cube')
-
-             this.debugFolder.add(this.cube2.material,'opacity',0,1,.1)
-             
-             this.debugFolder.add(this.cube2.material,'clearcoat',0,1,.1)
-             
-             this.debugFolder.add(this.cube2.material,'transmission',0,1,.1)
-             this.debugFolder.add(this.cube2.material,'roughness',0,1,.1)
-             this.debugFolder.add(this.cube2.material,'metalness',0,1,.1)
-    }*/
-    
-        }
-    
-
-    
-
-    resize()
-    {
-    }
-
-
-    // notes const animation = requestAnimationFrame( ... )
-/*
-cancelAnimationFrame( animation )
-
-//
-
-renderer.setAnimationLoop( ... )
-
-renderer.setAnimationLoop( null )
-
-*/
-
-    update(){
-
-
-      
-/*
-      if(this.hand){
-      this.hand.rotation.y += .01
       }
-        
-      this.cubeArray.forEach((cube)=>{
+    });
+  }
 
-        //cube.rotation.y += .05
+  setPreLoader() {
 
-        }) */
+    this.preloader = new PreLoader();
+
+  }
+
+  setTrackGeometry(){
+
+
+    this.trackGeometry = new TrackGeometry()
+  }
+
+  setAnimationController(){
+
+    this.animationController = new AnimationController()
+
+  }
+
+  /*  setRaceTrack(){
+
+    this.racetrack = new RaceTrack()
+
+    console.log(this.racetrack)
+
+  } */
+
+  setDebugger() {
+    this.debugger = new Debugger();
+  }
+
+  setControls2() {
+
+    this.controls = new Controls2();
+
+  }
+
+  setUI(){
+
+    this.UI = new UI();
+  }
+
+  setWalls(){
+
+    this.walls = new Walls();
 
     }
 
-    destroy()
-    {
-    }
+  setRaycaster() {
+
+    this.raycaster = new Raycaster();
+
+  }
+
+  setDrawing(){
+
+    this.setdrawing = new Drawing();
+
+  }
+
+  setTShirt() {
+    this.tshirt = new TShirt();
+  }
+
+    setVideo() {
+    this.video = new Video();
+  }  
+
+  setRoom() {
+    this.room = new RoomEnvironment();
+    this.scene2.add(this.room);
+    this.room.scale.setScalar(100);
+    this.room.position.set(0, -100, 0);
+  }
+
+  setControls() {
+    this.controls = new Controls();
+  }
+
+  setFloorParticles() {
+    this.floorparticles = new FloorParticles();
+  }
+
+  setParticles() {
+    this.particles = new Particles();
+    //console.log(Particles.prototype);
+  }
+
+  setFloor() {
+    this.floor = new Floor();
+  }
+
+  setBag() {
+    this.bag = new Bag();
+  }
+
+  setSceneWorld() {
+    this.sceneworld = new SceneWorld();
+  }
+
+  setCar() {
+    this.car = new Car();
+  }
+
+  setBox() {
+    this.box = new Box();
+  }
+
+  setFont() {
+    this.font = new Font();
+  }
+
+  setDrone() {
+    this.drone = new Drone();
+  }
+
+  setMenu() {
+    this.menu = new Menu();
+  }
+
+  resize() {}
+
+  update() {
+
+    if(this.preloader)
+    this.preloader.update()
+
+    if(this.trackGeometry)
+    this.trackGeometry.update()
+
+    if(this.animationController)
+    this.animationController.update()
+
+    if(this.debugger)
+    this.debugger.update()
+
+   // if(this.controls2)
+    //this.controls2.update()
+
+
+    if(this.floorparticles)
+    this.floorparticles.update()
+
+    //if(this.racetrack)
+    //this.racetrack.update()
+
+    if(this.tshirt)
+    this.tshirt.update()
+
+    if(this.walls) this.walls.update();
+
+    if (this.raycaster) this.raycaster.update();
+
+    if (this.setdrawing) this.setdrawing.update()
+
+    if (this.video) this.video.update();
+
+    if (this.particles) this.particles.update();
+
+    if (this.font) this.font.update();
+
+    if (this.floor) this.floor.update();
+
+    if (this.box) this.box.update();
+
+    if (this.car) this.car.update();
+
+    if (this.sceneworld) this.sceneworld.update();
+
+    //if (this.drone) this.drone.update();
+
+    if (this.menu) this.menu.update();
+  }
+
+  destroy() {}
 }
