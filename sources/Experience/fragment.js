@@ -215,109 +215,35 @@ float Explosion(vec2 uv, float t) {
   fragmentShader4: `
 
 
-  uniform float time;
-  uniform sampler2D texture1;
-  uniform vec2 iResolution;
-  uniform vec2 iMouse;
- 
 
 
-    mat2 rot(float a) { return mat2(cos(a), sin(a), -sin(a), cos(a)); }
-
-// iq's noise function
-float noise(vec3 x) {
-    vec3 p = floor(x);
-    vec3 f = fract(x);
-	f = f*f*(3.0-2.0*f);
-	vec2 uv = (p.xy+vec2(37.0,17.0)*p.z) + f.xy;
-    vec2 rg = texture2D( texture1, (uv+ 0.5)/256.0, 0. ).yx;
-	return -1.0+2.0*mix( rg.x, rg.y, f.z );
-}
-
-float smoke(vec3 p) {
-    //return clamp(1. - length(p), 0., 1.);
-    vec3 q = 1.2 * p;
-    float f = 0., a = .5;
-    for(int i = 0; i < 5; ++i, a *= .4, q *= 2.1) { // fbm
-        q += time * vec3(.17, -.5, 0);
-        f += a * noise(q);
-    }
-    float noiseShape = .5 + .7 * max(p.y, 0.) - .15 * length(p.xz);
-    return clamp(1. +  noiseShape * f - length(p), 0., 1.);
-    
-}
-
-vec3 shading(vec3 ro, vec3 rd) {
-    vec3 ld = normalize(vec3(.5, 1, -.7));
-    
-    const float nbStep = 30., diam = 3., rayLength = diam / nbStep;
-    float start = length(ro) - diam / 2., end = start + diam;
-    float sumDen = 0., sumDif = 0.;
-    
-    for(float d = end; d > start; d -= rayLength) { // raymarching
-        vec3 p = ro + d * rd;
-    	if(dot(p,p) > diam * diam) break;
-        float den = smoke(p);
-        sumDen += den;
-        if(den > .02) sumDif += max(0., den - smoke(p + ld * .17));
-    }
-
-    const vec3 lightCol = vec3(.95, .75, .3);
-    float light = 10. * pow(max(0., dot(rd, ld)), 10.);
-    vec3 col = .01 * light * lightCol;
-    col +=  .4 * sumDen * rayLength * vec3(.8, .9, 1.); // ambient
-    col += 1.3 * sumDif * rayLength * lightCol;         // diffuse
-	return col;
-}
-
-
-
-
-
+uniform sampler2D texture1;
+uniform vec2 iResolution;
+uniform vec2 iMouse;
+varying vec4 vColor;
+varying float vOpacity;
 
 void main() {
 
-   
-    vec2 uv = (gl_FragCoord.xy - iResolution.xy / 2.) / iResolution.yy;
-    vec3 rd = normalize(vec3(uv, -1.07));
-
-    vec2 ang = iMouse.xy/iResolution.xy;
-    float yaw = 7. * ang.x;
-    float pitch = +(ang.y);
-
-    vec3 camPos = vec3(0., .3, 3.5);
-    camPos.yz *= rot(pitch); camPos.zx *= rot(yaw);
-    rd.yz     *= rot(pitch);     rd.zx *= rot(yaw);
-
-    
-    //vec4 pointCoord = gl_PointCoord * 20.0;
-
-    
-    
-
-    
-    float distance = length(gl_PointCoord-vec2(.5));
-
-
-
-    vec4 color = texture2D(texture1, gl_PointCoord+distance);
-
-
-    float threshold = .5;
-
-    if(distance > threshold){
-
-      discard;
-
-    } 
-
-
 
   
-	  //gl_FragColor = vec4(pow(shading(camPos, rd), vec3(1. / 2.2)), 1.);
-    gl_FragColor = color;
-    
+  float distance = length(gl_PointCoord-vec2(.5));
+
+
+
+  vec4 color = texture2D(texture1, gl_PointCoord+distance);
+
+
+  float threshold = .5;
+
+  if(distance > threshold){
+
+    discard;
+
+  } 
+    gl_FragColor = color + vec4(vColor.rgb, vColor.a * vOpacity);
 }
+
 
 
 `,
@@ -330,6 +256,8 @@ uniform sampler2D texture1;
 varying vec2 vUv;
 
 void main(){
+
+  
 
   vec4 height = texture2D(texture1, vUv);
 

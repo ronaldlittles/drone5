@@ -30,20 +30,16 @@ export default class Box extends EventEmitter {
     this.experience = new Experience();
     this.config = this.experience.config;
     this.debug = this.experience.debug;
-    
-
     this.scene = this.experience.scene;
     this.scene2 = this.experience.scene2;
+    this.scene3 = this.experience.scene3
     this.camera = this.experience.camera;
     this.resources = this.experience.resources;
     this.time = this.experience.time;
-   
     this.renderer = this.experience.renderer;
     this.targetElement = this.experience.targetElement;
-
-    
     this.world = this.experience.world;
-    //console.log(this.world.walls.arrowUpPressed)
+    
    
     this.setCubeTexture()
     this.resource1 = this.resources.items.me;
@@ -64,7 +60,7 @@ export default class Box extends EventEmitter {
    
     this.clamp = THREE.MathUtils.clamp;
    
-  // this.setScene()
+   //this.setScene()
   
     
   }
@@ -85,7 +81,7 @@ let mergedGeometry = mergeBufferGeometries([circle1, circle2], false);
 let material = new THREE.MeshBasicMaterial({ 
   //color: 0xff0000, 
   side: THREE.DoubleSide,
-  map: this.renderer.renderTarget.texture,
+  map: this.cubeTexture,
   transparent: true,
   opacity: 1,
 
@@ -128,15 +124,17 @@ this.mesh.receiveShadow = true;
     ]);
 
    
-    //this.scene2.background =  this.resource2
-    //this.scene2.backgroundBluriness = 1
+    this.scene2.background =  this.cubeTexture
+    this.scene3.backgroundBluriness = .5
     
     this.cubeTexture.needsUpdate = true
     this.cubeTexture.mapping = THREE.CubeRefractionMapping;
-    //this.scene2.environment = this.cubeTexture
+    //this.scene3.environment = this.cubeTexture
 
                                                                 
-                                                               
+         if(this.debug) {
+          //this.debug.add(this.scene3.backgroundBlurriness)
+         }                                                     
    
   }
 
@@ -191,22 +189,22 @@ this.mesh.receiveShadow = true;
       this.mesh1 = new THREE.Mesh(this.geometry,
          new THREE.MeshStandardMaterial({
 
-         // map: this.resource6,
-          color: 0xffffff,
+          map: this.cubeTexture,
+          //color: 0xffffff,
           side: THREE.DoubleSide
 
         }));
+      console.log(this.mesh1.material)
       
-      
-      this.mesh1.scale.set(0,0,0)
+      this.mesh1.scale.set(500,500,500)
 
       //this.mesh1.scale.setScalar(20)
 
-      this.mesh1.position.set(0, 0 , 0)
+      this.mesh1.position.set(0, 0 , 3)
 
-      this.mesh1.rotation.x = Math.PI/2
+      //this.mesh1.rotation.x = Math.PI/2
       
-      this.scene.add(this.mesh1);
+      this.scene3.add(this.mesh1);
 
       this.mesh1.receiveShadow = true;
       this.mesh1.castShadow = true;
@@ -472,7 +470,7 @@ function nextText() {
 
     this.myText3.rotation.y += .05
 
-    //this.mesh.rotation.y += 0.01;
+    this.scene3.rotation.y += 0.01;
     
     //this.walls.shaderMaterial6.uniforms.time.value += this.time.delta * 0.2;
     this.mesh1.rotation.y += 0.01;

@@ -20,7 +20,7 @@ import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeom
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 //import WebGPURenderer from 'three/examples/jsm/renderers/webgpu/WebGPURenderer.js';
-
+import FakeGlowMaterial from './FakeGlowMaterial.js'
 
 export default class TrackGeometry extends EventEmitter {
 
@@ -57,6 +57,8 @@ export default class TrackGeometry extends EventEmitter {
     this.setCirlces()
     this.setBackGroundPlane()
     this.setScene3()
+
+    console.log(FakeGlowMaterial)
 
 
     }
@@ -130,6 +132,19 @@ fireInstancedSprite.position.copy(smokeInstancedSprite.position)
     
 
     setShader(){
+
+      // ...
+const geometry = new THREE.SphereGeometry(1,36,36);
+const fakeGlowMaterial = new FakeGlowMaterial({color:'blue'});
+const Sphere = new THREE.Mesh(geometry, fakeGlowMaterial);
+this.scene.add(Sphere);
+
+Sphere.scale.set(500,500,500)
+Sphere.position.set(100,0,300)
+
+console.log(Sphere)
+// ...
+
 
       this.terrainShader = new THREE.ShaderMaterial({
 
@@ -303,7 +318,7 @@ GSAP.to(this.toruses.position, {
       });
 
     this.mesh = new THREE.Mesh(this.geometry, this.terrainShader);
-    this.scene3.add(this.mesh);
+    //this.scene3.add(this.mesh);
 
     //this.geometry.computeVertexNormals()
 
@@ -474,7 +489,7 @@ this.scene.add(directionalLight)
         new THREE.MeshStandardMaterial({color: 'yellow'})
       )
 
-      this.scene3.add(this.mesh2)
+      //this.scene3.add(this.mesh2)
      // this.mesh2.position.z=-1
       //this.mesh2.position.x = 3
       this.mesh2.receiveShadow=true
@@ -627,7 +642,7 @@ this.scene.add(directionalLight)
       //this.scene.add(binormalHelper);
    
 
-
+this.mesh2.rotation.x = this.time.elapsed * 2
 
 }
 

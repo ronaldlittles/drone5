@@ -62,7 +62,7 @@ export default class Experience
         this.setConfig()
         this.setDebug()
         
-        this.setStats()
+        //this.setStats()
         this.setScene()
         this.setScene2()
         this.setScene3()

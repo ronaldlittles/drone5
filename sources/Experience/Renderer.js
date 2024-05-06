@@ -100,7 +100,7 @@ this.switchScene = function() {
   }
 
   fade(scene){
-
+console.log('sceneSwitched')
   
     scene.traverse((object) => {
   

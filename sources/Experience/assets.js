@@ -68,6 +68,14 @@ export default [
         source: "/assets/spacetaxi.glb",
         type: "gltfModel",
       }, 
+      
+      /*
+      {
+        name: "ferrariModel",
+        source: "/assets/ferrari.glb",
+        type: "gltfModel",
+      }, */
+
 
       {
         name: "buildingModel",

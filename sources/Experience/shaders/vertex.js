@@ -44,70 +44,78 @@ const vertexShader = {
 
       vertexShader2: `
 
-      
-     //#include ./includes/hash.glsl
+
+uniform float time;
+uniform float lifeRange;
+uniform vec3 offsetRangeMin;
+uniform vec3 offsetRangeMax;
+uniform float scaleMin;
+uniform float scaleMax;
+uniform float rotateMin;
+uniform float rotateMax;
+
+varying vec2 vUv;
+
+
+uniform sampler2D texture1;
+
+//attribute vec3 position;
+attribute vec3 aRandom;
+attribute float aSize;
+
+varying vec4 vColor;
+varying float vOpacity;
+
+float timerLocal(float t, float tMax) {
+    return mod(time * t, tMax);
+}
+
+vec2 rotateUV(vec2 uv, float angle) {
+    float s = sin(angle);
+    float c = cos(angle);
+    mat2 rotationMatrix = mat2(c, -s, s, c);
+    return rotationMatrix * uv;
+
+}
+
+float random(in vec2 st) {
+  return fract(sin(dot(st.xy,
+                       vec2(12.9898,78.233)))
+               * 43758.5453123);
+}
+
+
+void main() {
+
+
+    float timer2 = timerLocal(0.02, 1.0);
+    float lifeTime = mod(timer2 * lifeRange, 1.0);
+    float scale = mix(scaleMin, scaleMax, lifeTime);
+    float rotate = mix(rotateMin, rotateMax, lifeTime);
     
-      //#define NUM_POINTS 450
 
-
-     
-      //uniform float uPoints[NUM_POINTS];
-      
-      //vec3 recPoints[NUM_POINTS / 3];
-     
-
-      uniform float time;
-      varying vec2 vUv;
-      varying vec3 vPosition;
-      uniform sampler2D texture1;
-      uniform float uNoise; 
-     //uniform float uPoints[];
-      attribute vec3 aRandom;
-      attribute float aSize;
-      //attribute vec3 position;
-
-      //attribute vec3 attributes;
-      
-      float PI = 3.141592653589793238;
-      
-      
-      void main() {
-
-        
-
-        vUv = uv; 
-
-
-        vec3 displacedPosition = position;
-
-        
-        //displacedPosition.z *= sin(.0001 + (time*.05));
-        //displacedPosition.x *= cos(.0001 + (time*.05));
-        
-        //displacedPosition.y *= sin(time*.005);//cos(.0001 + (time*.05));
-        
-
-        vec3 color = texture2D(texture1, vUv).rgb;
-
-        //vec4 mvPosition = modelViewMatrix * vec4( displacedPosition, 1. );
-        
-
-      
-
-        gl_PointSize = 50.0 * aSize * aRandom.x;
-
-        
-       // gl_Position = projectionMatrix * mvPosition;
-
-        //mvPosition.z *= 5.0;
-
-        vec4 modelPosition = modelMatrix * vec4(displacedPosition, 1.0);
-        vec4 viewPosition = viewMatrix * modelPosition;
-        gl_Position = projectionMatrix * viewPosition;
+    scale *= lifeTime;
     
-        
-      
-      }
+  
+
+    vec2 uv_rotated = rotateUV(uv, timer2 * rotate);
+    vColor = texture2D(texture1, uv_rotated);
+    vOpacity = 1.0 - lifeTime;
+
+    vec3 newPosition = position;
+
+    
+
+   newPosition.y *=  aRandom.y + lifeTime;
+
+    
+    gl_PointSize = 50.0 * aSize * aRandom.x;
+
+    vec3 offset = mix(offsetRangeMin, (offsetRangeMax*aRandom)*10.0, lifeTime);
+    vec4 mvPosition = modelViewMatrix * vec4(newPosition + offset, 1.0);
+    gl_Position = projectionMatrix * mvPosition;
+}
+
 
      
         `,

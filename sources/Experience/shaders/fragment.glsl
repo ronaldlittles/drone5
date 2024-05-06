@@ -35,7 +35,7 @@ void main(){
 
   vec3 offset2 = vec3(0.0,-1.0,0.0);
 
-  vec2 newUv =  vUv + offset * time;
+  vec2 newUv =  vUv + offset * (time*5.);
 
 
   newUv.x *= offset.y + speed;
@@ -51,6 +51,8 @@ void main(){
   vec4 height = texture2D(texture2,fract(newUv));
 
   gl_FragColor = vec4(height.rgb,1.0);
+
+  //csm_FragColor = vec4(1.0,.5.5,1.0);
 
 
 }

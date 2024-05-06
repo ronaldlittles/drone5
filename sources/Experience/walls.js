@@ -8,7 +8,7 @@ import {smokeFragment} from "./smokeFragment.js";
 import {smokeVertex} from './smokeVertex.js';
 import { vertexShader } from "./shaders/vertex.js";
 import { fragmentShader } from "./fragment.js";
-import { Sky } from "three/examples/jsm/objects/Sky.js";
+import { Sky } from "three/addons/objects/Sky.js";
 import { Water } from 'three/examples/jsm/objects/Water.js';
 import { FontLoader, Font } from "three/examples/jsm/loaders/FontLoader.js";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js"
@@ -21,6 +21,15 @@ import { PositionalAudioHelper } from "three/examples/jsm/helpers/PositionalAudi
 import Box from "./box.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ObjectLoader } from "three"; 
+import FakeGlowMaterial from './FakeGlowMaterial.js'
+import { glowfragmentShader } from "./shaders/glowShader.js";
+import { heightMapShader } from "./hieghtMapShader.js";
+import CustomShaderMaterial from "three-custom-shader-material/vanilla";
+import fragment from './shaders/fragment.glsl'
+import vertex from './shaders/vertex.glsl'
+
+
+
 
 
 //import AnimationController from "./animationcontroller.js";
@@ -72,7 +81,7 @@ export default class Walls extends EventEmitter {
 
       
 
-      
+      console.log(glowfragmentShader)
   
     
    
@@ -485,7 +494,7 @@ export default class Walls extends EventEmitter {
     this.model.castShadow = true
     this.model.receiveShadow = true;
     this.model.visible = true;
-    this.model.scale.set(1.0,.4,.8)
+    this.model.scale.set(1.5,.4,.8)
     //this.model.scale.setScalar(310)
     this.scene2.add(this.model);
     //this.model.add(this.audio2)
@@ -692,6 +701,7 @@ for (let i = 0; i < amount; i++) {
         this.shaderMaterial = new THREE.ShaderMaterial({
      
           side: THREE.DoubleSide,
+          transparent:true,
         
           uniforms: {
     
@@ -705,14 +715,34 @@ for (let i = 0; i < amount; i++) {
             fogColor: { value: new THREE.Vector3( 0.0, 0.0, 0.0 ) },
               
             texture1: { value: this.resource6 },
-            texture2: { value: this.resource2 }
+            texture2: { value: this.resource2 },
+            tDiffuse: { value: this.resource1,},
+                        
+            uPosition: { value: new THREE.Vector2(.5,.5)},
+            uRadius: new THREE.Uniform(.2),
+            uColor: { value: new THREE.Vector3(.5,.5,.5)},
+            uAlpha: { value: .5},
+            
     
           },
        
           vertexShader: vertexShader.vertexShader,
-          fragmentShader: fragmentShader.fragmentShader,
+          fragmentShader: fragmentShader.fragment,
        
         }); 
+
+        if(this.debug){
+
+          this.debug.add(this.shaderMaterial.uniforms.uPosition.value,'x',0,100,.5).name('uPositionX')
+
+          this.debug.add(this.shaderMaterial.uniforms.uPosition.value,'y',0,100,.5).name('uPositionY')
+          
+          this.debug.add(this.shaderMaterial.uniforms.uRadius,'value',0,100,.5).name('uRadius')
+          
+          this.debug.add(this.shaderMaterial.uniforms.uAlpha,'value',0,100,.5).name('uAlpha')
+          
+        
+        }
 
          
 
@@ -763,38 +793,8 @@ for (let i = 0; i < amount; i++) {
    
     })  
     
-      
-/* 
-
-    let radius = 2000
-
-    const points2 = [];
-
-    const numPoints = 1000;
-
-    for (let i = 0; i <= numPoints; i++) {
-
-        let t = (i / numPoints) * Math.PI * 2; 
-
-        const x = Math.sin(t)*radius;
-        let y //= Math.sin(2 * t)*radius;
-        const z = (Math.sin(t) * Math.cos(t)) * radius;
-
-        points2.push(new THREE.Vector3(x, y, z));
-    
-
-    if(t >= (8*Math.PI/10) && t <= (12* Math.PI/10)){
-
-      let a = (t-8 *Math.PI/10)* (Math.PI/ (12*Math.PI/10 - 8*Math.PI/10))
-
-       y= (Math.sin(a*Math.PI)* radius*5) + Math.cos(t*Math.PI) * radius  
-
-  }
-    }
- */
-
-
-    let radius = 2000;
+   
+let radius = 2000;
 
 const points2 = [];
 
@@ -825,32 +825,12 @@ for (let i = 0; i <= numPoints; i++) {
 
 }
 
-
-console.log(points2)
-
-this.innerPoints = []
-this.outerPoint = []
-
-this.threshold = new THREE.Vector3()
-
-this.reference = new THREE.Vector3(5,5,5).multiply(this.threshold)
-console.log(this.reference)
-
-this.dist = this.reference.distanceTo(points2)
-
-for(let i=0; i<points2.length; i++){
-
-    if(this.dist > this.threshold){ 
-
-    console.log(this.dist)
-
-  }
-
-}
-
+console.log(points2.length)
 
 
     this.spline = new THREE.CatmullRomCurve3(points2);
+
+    console.log(this.spline)
 
     const uPointsSplice = this.spline.points.slice(0,150)
 
@@ -858,7 +838,7 @@ for(let i=0; i<points2.length; i++){
 
     uPointsSplice.forEach(vector => {
 
-      flattenedSpliceArray.push(vector.x.toFixed(6), vector.y.toFixed(6), vector.z.toFixed(6))
+    flattenedSpliceArray.push(vector.x.toFixed(6), vector.y.toFixed(6), vector.z.toFixed(6))
 
     })
 
@@ -869,10 +849,135 @@ for(let i=0; i<points2.length; i++){
 
     })
 
-
+console.log(flattenedSpliceArray)
     const splinePoints = this.spline.getPoints(100)
 
+
+    /////////////////////////heightmap shader /////////////////////////
+
     
+let curvePoints = points2; 
+
+let offsetDistance = 3.5; 
+
+console.log(curvePoints)
+
+let offsetPoints1 = [];
+let offsetPoints2 = []; 
+
+for (let i = 0; i < curvePoints.length; i+=2) {
+    
+    let tangent;
+
+    if (i < curvePoints.length - 1) {
+
+        tangent = new THREE.Vector3().subVectors(curvePoints[i + 1], curvePoints[i]).normalize();
+    } else {
+
+        tangent = new THREE.Vector3().subVectors(curvePoints[i], curvePoints[i - 1]).normalize();
+    }
+
+    // Calculate the normal vector by rotating the tangent 90 degrees around the Z axis
+    let normal1 = new THREE.Vector3(-tangent.y, tangent.x, 0).normalize();
+    let normal2 = new THREE.Vector3(tangent.y, -tangent.x, 0).normalize();
+
+    // Calculate the offset points by adding the normal vector (scaled by the offset distance) to the current point
+    let offsetPoint1 = new THREE.Vector3().addVectors(curvePoints[i], normal1.multiplyScalar(offsetDistance));
+    let offsetPoint2 = new THREE.Vector3().addVectors(curvePoints[i], normal2.multiplyScalar(offsetDistance));
+
+  
+    offsetPoints1.push(offsetPoint1);
+    offsetPoints2.push(offsetPoint2);
+
+    
+}
+
+console.log(offsetPoints1)
+const width = 400
+const height = 300
+
+//flattenArray
+
+
+var texture1 = new THREE.DataArrayTexture(new Uint8Array([1,2,3]), width, height, THREE.SRGBColorSpace, THREE.FloatType);
+texture1.flipY = false
+texture1.needsUpdate = true;
+
+
+
+var texture2 = new THREE.DataArrayTexture(new Uint8Array([3,2,1]), width, height, THREE.SRGBColorSpace, THREE.FloatType);
+texture2.flipY = false
+texture2.needsUpdate = true;
+
+
+this.heightMapShaderMaterial = new THREE.ShaderMaterial({
+
+    uniforms: {
+
+        heightMap1: {value: new Float32Array(flattenedSpliceArray
+        )},
+        //heightMap2: { value: texture2 },
+        elevationFactor: new THREE.Uniform(.00006),
+
+    },
+
+    vertexShader: heightMapShader.vertex,
+    fragmentShader: heightMapShader.fragment
+
+});
+
+console.log(this.heightMapShaderMaterial.uniforms)
+
+let floorPlane = new THREE.PlaneGeometry(2048,2048)
+
+  const material = new CustomShaderMaterial({
+    baseMaterial: THREE.MeshPhysicalMaterial,
+    vertexShader: vertex,
+    fragmentShader: fragment,
+    silent: false, 
+    uniforms: {
+      uTime: {
+        value: 0,
+        texture2: this.resource1,
+      },
+    },
+    flatShading: true,
+    //color: 0x0000ff,
+    side: THREE.DoubleSide,
+    wireframe: false,
+    //transmission: .98,
+    //transparent: true,
+    //opacity: .5,
+    map: this.resource1
+
+  })
+
+
+
+console.log(material)
+
+let floorMesh = new THREE.Mesh(floorPlane,material)
+
+console.log(floorMesh)
+
+//this.scene.add(floorMesh)
+
+//floorMesh.position.y += -150
+
+//floorMesh.rotation.x += -Math.PI/2
+//floorMesh.scale.set(5,5,5)
+
+if(this.debug){
+
+  this.debug.add(this.heightMapShaderMaterial.uniforms.elevationFactor,'value',0,1,.01).name('elevationfactor')
+
+  
+  this.debug.add(floorMesh.scale,'x',0,10,.5).name('height')
+}
+
+
+////////////////////////////////////////
+
 
       this.shaderMaterial5 = new THREE.ShaderMaterial({
      
@@ -881,13 +986,22 @@ for(let i=0; i<points2.length; i++){
     
       uniforms: {
 
-        time: { value: null },
+        time: { value: 1.0 },
         texture1: { value: this.resource2 },
         //uNoise: { value: this.iNoise },
         uvScale: { value: new THREE.Vector2(1,1) },
         //iResolution: { value: new THREE.Vector2( this.config.width,this.config.height)},
         //iMouse: { value: new THREE.Vector2(this.mouse.x,this.mouse.y) },
-        uPoints: { value: new Float32Array(flattenedFloatArray) },
+        //uPoints: { value: new Float32Array(flattenedFloatArray) },
+      
+        lifeRange: {  value: .05},
+        offsetRangeMin: { value: new THREE.Vector3(0.0,0.0,0.0)},
+        offsetRangeMax: { value: new THREE.Vector3(0.0,2.0,6.0)},
+        scaleMin: {  value: 0},
+        scaleMax: {  value: 10 },
+        rotateMin:{  value: 0},
+        rotateMax:{  value: 10},
+
 
       },
    
@@ -896,6 +1010,28 @@ for(let i=0; i<points2.length; i++){
    
     });
 
+
+    
+    if(this.debug){
+
+      
+      this.debug.add(this.shaderMaterial5.uniforms.time,'value',0.0,100.0,.1).name('time')
+
+      this.debug.add(this.shaderMaterial5.uniforms.lifeRange,'value',.0,1.0,.1).name('lifeRange')
+      
+      this.debug.add(this.shaderMaterial5.uniforms.scaleMin,'value',0,1000,.1).name('scaleMin')
+      
+      this.debug.add(this.shaderMaterial5.uniforms.scaleMax,'value',0,1000,.1).name('scaleMax')
+      
+      this.debug.add(this.shaderMaterial5.uniforms.rotateMin,'value',.0,1000,.1).name('rotateMin')
+      
+      this.debug.add(this.shaderMaterial5.uniforms.rotateMax,'value',.0,1000,.1).name('rotateMax')
+      
+      this.debug.add(this.shaderMaterial5.uniforms.offsetRangeMin.value,'y',.0,1000,.1).name('offsetRangeMin')
+      
+      this.debug.add(this.shaderMaterial5.uniforms.offsetRangeMax.value,'y',.0,1000,.1).name('offsetRangeMax')
+      
+    }
 
 
    
@@ -919,6 +1055,7 @@ for(let i=0; i<points2.length; i++){
 
     });
 
+    
 
 
     this.displacementMaterial = new THREE.MeshStandardMaterial({
@@ -971,9 +1108,7 @@ for(let i=0; i<points2.length; i++){
          
         this.points = [];
         this.derivatives = [];
-
-
-    this.splinePoints = [];
+        this.splinePoints = [];
 
     
 /* 
@@ -990,14 +1125,15 @@ for(let i=0; i<points2.length; i++){
 
    const attributes =  new THREE.BufferAttribute(new Float32Array(this.splinePoints), 3);  
 
+    console.log(attributes)
 
    this.shaderMaterial2 = new THREE.ShaderMaterial({
    
-  side: THREE.DoubleSide,
-  transparent: true,
+      side: THREE.DoubleSide,
+      transparent: true,
  
   
-  uniforms: {
+      uniforms: {
      
       time: { value: 0.0},
      // uNoise: { value: this.iNoise },
@@ -1071,13 +1207,10 @@ for(let i=0; i<points2.length; i++){
     this.spacedPoints2 = this.spline.getSpacedPoints(1000).slice(300,600)
 
     this.spacedPoints3 = this.spline.getSpacedPoints(1000).slice(125,875)
-   
   
     this.spline2 = new THREE.CatmullRomCurve3(this.spacedPoints);
     
-
     this.spline3 = new THREE.CatmullRomCurve3(this.spacedPoints2);
-
 
     this.spline5 = new THREE.CatmullRomCurve3(this.spacedPoints3);
 
@@ -1177,47 +1310,49 @@ for(let i=0; i<points2.length; i++){
     //this.tubeGeo.computeVertexNormals()
 
 
-    this.numPoints = 5000;
+    this.numPoints = 5000
 
-
-    //CUSTOM GEOMETRY
-      this.s = new THREE.SphereGeometry( 1, 32, 32 );
-
-      radius = 100;
-    
-    this.geometry = new THREE.BufferGeometry();
-
-    //this.geometry = new THREE.SphereGeometry(1,36,36);
+    radius = 10 ;
 
     
-    const spherical = new THREE.Spherical(
-
-      radius,
-      Math.random() * Math.PI,
-      Math.random() * Math.PI *2
-      
-    )
-
-    //this.geometry.setFromSpherical(spherical)
-    
-    this.positions = new Float32Array( this.numPoints * 3 );
+    this.positions = new Float32Array( flattenedSpliceArray);
     //this.colors = new Float32Array( this.numPoints * 3 );
     this.randoms = new Float32Array( this.numPoints * 3 );
     this.sizes = new Float32Array( this.numPoints );
 
+    console.log(this.positions)
+    console.log(this.randoms)
+
     
 
-    for ( let i = 0; i < this.numPoints*3; i++ ) {
+    
+
+    for ( let i = 0; i < flattenedSpliceArray.length*3; i++ ) {
 
 
-      this.positions[ i ] =  (Math.random() - .5)*10;
-      this.positions[ i + 1 ] = (Math.random()-.5 )*30;
-      this.positions[ i + 2 ] = ( Math.random()  - .5)*10;
+      const i3 = i*3
 
+      const spherical = new THREE.Spherical(
+
+        radius * (.75 * Math.random() * .25),
+        
+        Math.random() * Math.PI,
+        Math.random() * Math.PI *2
+        
+      )
+
+     const position = new THREE.Vector3()
+     position.setFromSpherical(spherical)
+
+
+      //this.positions[ i3 ] = flattenedSpliceArray[i]
+      //this.positions[ i3 + 1 ] = flattenedSpliceArray[i+1]
+     //this.positions[ i3 + 2 ] = flattenedSpliceArray[i+2]
       
-      this.randoms[ i + 0 ] = Math.random();
-      this.randoms[ i + 1 ] = Math.random();
-      this.randoms[ i + 2 ] = Math.random();
+      
+      this.randoms[ i3 ] = Math.random();
+      this.randoms[ i3 + 1 ] = Math.random();
+      this.randoms[ i3 + 2 ] = Math.random();
 
       //this.colors[i]  = Math.random() 
 
@@ -1226,7 +1361,15 @@ for(let i=0; i<points2.length; i++){
     }
 
     
-    this.geometry.setAttribute( 'position', new THREE.BufferAttribute( this.positions, 3 ) );
+    
+    this.geometry = new THREE.BufferGeometry().setFromPoints(flattenedSpliceArray); 
+
+    console.log(this.geometry)
+
+    
+
+    //this.geometry.setAttribute( 'position', points2[1] )
+    //this.geometry.setAttribute( 'position', new THREE.BufferAttribute( this.positions, 3 ) )
 
     //this.geometry.setAttribute( 'color', new THREE.BufferAttribute( this.colors, 3 ) );
 
@@ -1234,14 +1377,25 @@ for(let i=0; i<points2.length; i++){
 
     this.geometry.setAttribute( 'aSize', new THREE.BufferAttribute( this.sizes, 1 ) );
 
+
+      // ...
+      
+      const fakeGlowMaterial = new FakeGlowMaterial();
+      const Sphere = new THREE.Mesh(this.geometry, fakeGlowMaterial);
+      this.scene.add(Sphere);
+      
+      //Sphere.scale.set(500,500,500)
+      //Sphere.position.set(100,0,300)
+
+
     this.plane2 = new THREE.Points( this.geometry, this.shaderMaterial5)
     this.scene.add(this.plane2)
-    this.plane2.scale.setScalar(600)
+    this.plane2.scale.setScalar(500)
     this.plane2.material.sizeAttenuation = true
     this.plane2.material.transparent = true
     this.plane2.material.vertexColors = true
+    this.plane2.material.blending = THREE.AdditiveBlending
 
-    console.log(this.plane2)
 
     
 
@@ -1571,7 +1725,7 @@ for(let i=0; i<points2.length; i++){
 
       update() {
 
-        this.plane2.rotation.y += .005
+        //this.plane2.rotation.y += .005
 
    //this.audioHelper.update()
 
@@ -1622,7 +1776,7 @@ for(let i=0; i<points2.length; i++){
 
         let  t8 =  (speed2 * this.time.elapsed + 1.0)/loopTime % 1;
 
-        this.shaderMaterial5.uniforms.time.value += .1 
+        this.shaderMaterial5.uniforms.time.value = this.time.elapsed * 5.0
 
       //console.log(this.shaderMaterial.uniforms.time.value)
 
@@ -1679,8 +1833,8 @@ for(let i=0; i<points2.length; i++){
     this.normal2.crossVectors( this.tangent4, this.binormal2 ).normalize();
 
 
-    const offset = new THREE.Vector3(0,50, -150)
-    const offset2 = new THREE.Vector3(Math.random(),25, Math.random())
+    const offset = new THREE.Vector3(0, 100, -100)
+    const offset2 = new THREE.Vector3(0,5, 0)
     const lookAt =  new THREE.Vector3(0, 0, 0)
 
         
@@ -1882,6 +2036,11 @@ if (intersects2.length > 0) {
       this.camera.instance.lookAt(this.model.position)
 
       this.model.lookAt(   pos4   )
+
+      if(this.model.position.y <= this.normal.y){
+        this.model.rotation.y+=25
+        this.model.position.y += 25
+      }
 
     
       /*this.treesArray.forEach((model2Clone, index) => {
