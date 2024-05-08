@@ -58,10 +58,10 @@
     float tl = length(noisec);
 
 
-    newPosition.z -=  sin(-1.0 *(((-noisec/1.5) * (noisec/1.5))));
+    newPosition.z -=  sin(-1.0 *(((-noisec/uvScale.x) * (noisec/1.5))));
     
 
-    if(uTime < 1.0){
+    if(uTime < 0.0){
 
       newPosition.z = 0.0;
       

@@ -15,6 +15,7 @@ const fragmentShader = {
 
   uniform float time;
   uniform vec2 uvScale;
+  uniform float uNoise;
 
   uniform float fogDensity;
 	uniform vec3 fogColor;
@@ -61,7 +62,7 @@ void main() {
     // Apply fog directly to the alpha channel
     temp.a *= fogFactor;
   
-    gl_FragColor = noise;
+    gl_FragColor = noise + vec4(uNoise,0.0,0.0,1.0);
   
   
 

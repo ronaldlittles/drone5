@@ -5,6 +5,7 @@
 //#include ./includes/curl.glsl
 //#include ./includes/gradient.glsl
 
+uniform sampler2D texture1;
 uniform sampler2D texture2;
 uniform float time;
 uniform vec3 vTangent;
@@ -48,9 +49,15 @@ void main(){
 
   float noisec = cnoise(color);
 
-  vec4 height = texture2D(texture2,fract(newUv));
+  vec4 height = texture2D(texture1,fract(newUv));
+  
+  vec4 height2 = texture2D(texture2,fract(newUv));
 
-  gl_FragColor = vec4(height.rgb,1.0);
+  vec4 mixed = mix(height,height2,sin(newUv.x+time));
+
+
+
+  gl_FragColor = vec4(mixed.rgb,1.0);
 
   //csm_FragColor = vec4(1.0,.5.5,1.0);
 

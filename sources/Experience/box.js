@@ -42,7 +42,7 @@ export default class Box extends EventEmitter {
     
    
     this.setCubeTexture()
-    this.resource1 = this.resources.items.me;
+    this.resource1 = this.resources.items.treeimage;
     this.resource2 = this.resources.items.fluffy;
     this.resource3 = this.resources.items.sceneModel
     this.resource6 =  this.resources.items.hdr
@@ -54,10 +54,12 @@ export default class Box extends EventEmitter {
     this.setLights()
     this.setCity() 
     this.setBox()
+
+    
+
    
     //this.walls = new Walls()
   
-   
     this.clamp = THREE.MathUtils.clamp;
    
    //this.setScene()
@@ -125,11 +127,11 @@ this.mesh.receiveShadow = true;
 
    
     this.scene2.background =  this.cubeTexture
-    this.scene3.backgroundBluriness = .5
+    this.scene2.backgroundBluriness = 100
     
     this.cubeTexture.needsUpdate = true
     this.cubeTexture.mapping = THREE.CubeRefractionMapping;
-    //this.scene3.environment = this.cubeTexture
+    this.scene2.environment = this.cubeTexture
 
                                                                 
          if(this.debug) {
@@ -169,9 +171,9 @@ this.mesh.receiveShadow = true;
     }); 
 
    
-  //this.resource1.wrapS =  THREE.RepeatWrapping;
-  //this.resource1.wrapT =  THREE.RepeatWrapping;
-  //this.resource1.repeat.set(10,10)
+  this.resource1.wrapS =  THREE.RepeatWrapping;
+  this.resource1.wrapT =  THREE.RepeatWrapping;
+  this.resource1.repeat.set(1,1)
 
   //this.resource2.wrapS = THREE.RepeatWrapping;
   //this.resource2.wrapT =THREE.RepeatWrapping; 
@@ -189,22 +191,25 @@ this.mesh.receiveShadow = true;
       this.mesh1 = new THREE.Mesh(this.geometry,
          new THREE.MeshStandardMaterial({
 
-          map: this.cubeTexture,
+          map: this.resource1,
           //color: 0xffffff,
-          side: THREE.DoubleSide
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 1.0,
 
         }));
       console.log(this.mesh1.material)
       
-      this.mesh1.scale.set(500,500,500)
+      this.mesh1.scale.set(800,500,500)
 
       //this.mesh1.scale.setScalar(20)
 
-      this.mesh1.position.set(0, 0 , 3)
+      this.mesh1.position.set(-250, 0 , 200)
 
       //this.mesh1.rotation.x = Math.PI/2
+
+
       
-      this.scene3.add(this.mesh1);
 
       this.mesh1.receiveShadow = true;
       this.mesh1.castShadow = true;
@@ -261,11 +266,17 @@ this.mesh.receiveShadow = true;
 
 }
 
+addMesh1 = () => {
+    
+  this.scene3.add(this.mesh1)
+
+  }
+
  
 
 
   setBox() {
-
+this.addMesh1()
    
     this.myText = new Text();
 
@@ -470,10 +481,10 @@ function nextText() {
 
     this.myText3.rotation.y += .05
 
-    this.scene3.rotation.y += 0.01;
+    //this.scene3.rotation.y += 0.01;
     
     //this.walls.shaderMaterial6.uniforms.time.value += this.time.delta * 0.2;
-    this.mesh1.rotation.y += 0.01;
+   // this.mesh1.rotation.y += 0.1;
 
     //this.mesh1.position.copy(this.walls.model.position)
 
@@ -494,5 +505,8 @@ function nextText() {
 
 }
 
+
+
 }
+
 

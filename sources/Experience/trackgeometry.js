@@ -22,6 +22,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 //import WebGPURenderer from 'three/examples/jsm/renderers/webgpu/WebGPURenderer.js';
 import FakeGlowMaterial from './FakeGlowMaterial.js'
 
+
 export default class TrackGeometry extends EventEmitter {
 
   constructor() {
@@ -42,7 +43,7 @@ export default class TrackGeometry extends EventEmitter {
     this.renderer = this.experience.renderer;
     this.targetElement = this.experience.targetElement;
   
-    this.resource1 = this.resources.items.snowm;
+    this.resource1 = this.resources.items.treeimage;
     this.resource2 = this.resources.items.fluffy;
     this.resource3 = this.resources.items.sceneModel
     this.resource6 =  this.resources.items.hdr
@@ -60,10 +61,14 @@ export default class TrackGeometry extends EventEmitter {
 
     console.log(FakeGlowMaterial)
 
+    this.scene3.environment = this.ShaderMaterial
+
+    
+
 
     }
 
-    setWebGPU(){
+setWebGPU(){
 
 // create nodes
 
@@ -162,13 +167,17 @@ console.log(Sphere)
 
           vTangent: { value: new THREE.Vector3() },
          
-          texture1: { value: this.renderer.renderTarget2.texture },
-          texture2: { value: this.resource1 },
+          texture1: { value: this.resource1 },
+          texture2: { value: this.resource2 },
         },
      
         vertexShader: vertexShaders,
         fragmentShader: fragmentShaders,
       })
+
+      if(this.debug){
+        this.debug.add(this.terrainShader.uniforms.uvScale.value,'x',-.5,5,.1).name('terrain')
+      }
 
       this.terrainGeometry = 
 
@@ -195,11 +204,11 @@ console.log(Sphere)
     
 
     
-   // this.resource1.wrapS = THREE.RepeatWrapping;
+    this.resource2.wrapS = THREE.RepeatWrapping;
 
-    //this.resource1.wrapT = THREE.RepeatWrapping;
+    this.resource2.wrapT = THREE.RepeatWrapping;
 
-    //this.resource1.repeat.set(8,8)
+    this.resource2.repeat.set(128,36)
 
 
     }
@@ -209,12 +218,14 @@ console.log(Sphere)
       this.PlaneGeometry = new THREE.PlaneGeometry(4,2)
 
       const pMaterials = {
-        color: 'green',
-        map: this.resource1,
-        side: THREE.DoubleSide
+       // color: 'green',
+        map: this.resource2,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: .5,
       }
 
-      this.PlaneMaterial = new THREE.MeshPhysicalMaterial(pMaterials)
+      this.PlaneMaterial = new THREE.MeshBasicMaterial(pMaterials)
 
       this.background = new THREE.Mesh(this.PlaneGeometry, this.PlaneMaterial)
       
@@ -310,7 +321,7 @@ GSAP.to(this.toruses.position, {
        //color: 0x0000ff,
      map: this.resource1,
        transparent: true,
-        opacity: .5,
+        opacity: 1.0,
         side: THREE.DoubleSide,
         //wireframe: true,
       size: 0.001
@@ -429,6 +440,8 @@ this.scene.add(directionalLight)
       this.hand.scale.set(3000,3000,3000)
 
       this.hand.rotation.set(Math.PI,0,0)
+
+      this.hand.position.set(250,-250,0)
     
 
       })
@@ -439,35 +452,37 @@ this.scene.add(directionalLight)
 
         //TODO instanced mesh / audio / bvh-csg
         
-        for(let i=0; i<10; i++){
+        for(let i=0; i<3; i++){
 
         this.cube2 = new THREE.Mesh(
 
-                new RoundedBoxGeometry( .8, 1.5, .2, 24, 0.09 ),
+                new RoundedBoxGeometry( 1.8, 1.0, .2, 24, 0.09 ),
   
 
             new THREE.MeshPhysicalMaterial({
-                color: 0x0000ff,
-                side: THREE.DoubleSide,
+                //color: 0x0000ff,
+                side: THREE.FrontSide,
                 clearcoat: 1.0,
                 metalness: .3,
                 roughness: .3,
                 transparent: true,
-                opacity: .8,
+                opacity: 1.0,
                 transmission: .98,
-                //map: this.resources.items.lennaTexture 
+                map: this.resource1
             })
 
         )
 
-        this.cube2.position.x = (i)*.05
+        this.cube2.rotation.x += Math.PI/2
+
+        this.cube2.position.x = (Math.random()-.5)*1550
         
-        this.cube2.position.y = Math.random()*10-5
-        this.cube2.position.z= Math.random()*10-5
+        this.cube2.position.y = (Math.random()-.5)*1550
+        this.cube2.position.z= (Math.random()-.5)*1550
 
       this.scene3.add(this.cube2) 
       this.cube2.castShadow = true
-      this.cube2.scale.setScalar(100)
+      this.cube2.scale.setScalar(500)
 
       this.cubeArray.push(this.cube2)
     
@@ -504,7 +519,7 @@ this.scene.add(directionalLight)
       
       console.log(gt)
       
-      gt.to(this.cube2.position, 2, {
+      /*gt.to(this.cube2.position, 2, {
 
 
         //x: this.cube2.position.x + Math.random() * distance - distance / 2,
@@ -532,7 +547,7 @@ this.scene.add(directionalLight)
 
 
      
-      });
+      });*/
 
 
 /*if(this.debug){

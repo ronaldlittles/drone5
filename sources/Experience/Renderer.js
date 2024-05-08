@@ -7,7 +7,7 @@ import { BokehPass } from "three/examples/jsm/postprocessing/BokehPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 //import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 import AnimationController  from './animationcontroller.js'
-
+import GSAP from 'gsap'
 //import WebGPURenderer from 'three/examples/jsm/renderers/webgpu/WebGPURenderer.js';
 
 export default class Renderer {
@@ -24,9 +24,10 @@ export default class Renderer {
     this.scene3 = this.experience.scene3;
     this.camera = this.experience.camera;
     this.resources = this.experience.resources;
-
     this.world = this.experience.world;
     const layers = new THREE.Layers();
+
+    console.log(this.camera.orbitControls.enableRotate)
 
     
     //this.video = this.experience.video;
@@ -42,8 +43,11 @@ export default class Renderer {
     this.setInstance();
     this.setPostProcess();
 
+    if(this.renderTarget.texture){
+
     //this.setCapture();
 
+    }
     
 
 
@@ -55,29 +59,57 @@ const buttonLeft3 = document.getElementById('left3');
 
 buttonLeft.addEventListener('click', () => {
 
-  console.log(this.scene3)
+this.camera.orbitControls.enableRotate = false
+
+this.camera.instance.position.set(0,0,600)
+  
+  
+  /*
+  GSAP.to(this.camera.instance.position, {
+
+    z: 1200,
+    //x: this.cube2.position.x + Math.random() * distance - distance / 2,
+    //y: this.cube2.position.y + Math.random() * distance - distance / 2,
+    //z: this.cube2.position.z + Math.random() * distance - distance / 2,
+    ease: 'power2.easeOut',
+    yoyo: true,
+    repeat: -1,
+    duration: 1,
+    delay: 2,
+ 
+  }); */
 
   
   this.fade(this.scene2);
 
   this.currentScene = this.scene3;
+
+  
+
   
 });
 
 
 buttonLeft2.addEventListener('click', () => {
 
+  this.camera.instance.position.set(0,0,600)
   
   this.fade(this.scene2);
 
   this.currentScene = this.scene;
-  // You may need to call the update method here to render the new scene
+
+  
+
+  this.camera.orbitControls.enableRotate = true
+  
   
 });
 
 buttonLeft3.addEventListener('click', () => {
 
-  
+  this.camera.orbitControls.enableRotate = true
+
+  this.camera.instance.position.set(0,0,600)
   this.fade(this.scene);
 
   this.currentScene = this.scene2;
@@ -89,13 +121,19 @@ buttonLeft3.addEventListener('click', () => {
 
 this.switchScene = function() {
 
-  if (this.currentScene === this.scene) {
+  if (this.currentScene === this.scene ) {
+
     this.currentScene = this.scene;
+
   } else {
+
     this.currentScene = this.scene2;
+
   }
 
 }
+
+
     
   }
 
@@ -303,8 +341,8 @@ console.log('sceneSwitched')
  this.instance.setRenderTarget(null)
 
   
-  
-
+//capture 1 frame outside the tick function fp  & apply to a floorplane on the track scene for heightmap
+console.log(this.renderTarget)
 
 
   }

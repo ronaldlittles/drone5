@@ -64,8 +64,8 @@ export default class Walls extends EventEmitter {
     
     
 
-    this.resource1 = this.resources.items.tacoBell;
-    this.resource2 = this.resources.items.dominos;
+    this.resource1 = this.resources.items.fluffy;
+    this.resource2 = this.resources.items.treeimage;
     this.resource3 = this.resources.items.droneModel;
     
     this.resource4 = this.resources.items.baloonsModel;
@@ -532,7 +532,7 @@ for (let i = 0; i < amount; i++) {
     this.model2.castShadow = true;
     //this.model2.receiveShadow = true;
     this.model2.visible = true;
-    this.model2.scale.setScalar(10) 
+    this.model2.scale.setScalar(60) 
     this.scene2.add(this.model2); 
 
 
@@ -563,7 +563,9 @@ for (let i = 0; i < amount; i++) {
                         
                        });   
 
-        
+                      console.log(this.meshes)
+
+
                       this.leaves = this.leavesClone.clone()
                       this.leaves2 = this.leavesClone2.clone()
                       this.meshes[3].scale.setScalar(5)
@@ -707,7 +709,7 @@ for (let i = 0; i < amount; i++) {
     
             time: { value: 1.0 },
            
-           // uNoise: { value: this.iNoise},
+            uNoise: { value: this.iNoise},
             uvScale:  { value: new THREE.Vector2( .00003, .0001 ) },
             tangent:{ value: this.tangent},
     
@@ -727,7 +729,7 @@ for (let i = 0; i < amount; i++) {
           },
        
           vertexShader: vertexShader.vertexShader,
-          fragmentShader: fragmentShader.fragment,
+          fragmentShader: fragmentShader.fragmentShader,
        
         }); 
 
@@ -758,7 +760,7 @@ for (let i = 0; i < amount; i++) {
         time: { value: 1.0 },
         resolution: { value: new THREE.Vector2() },
         uvScale: { value: new THREE.Vector2(.001,64) },
-        texture1: { value: this.resource1 },
+        texture1: { value: this.resource2 },
        // uNoise: { value: this.iNoise },
         time: { value: 1.0 },
         uTimeFrequency: { value: 1.4 },
@@ -1065,7 +1067,7 @@ if(this.debug){
       side: THREE.DoubleSide,
       transparent: true,
       opacity: .8,
-      map: this.resource1,
+      map: this.resource2,
      
 
     });
@@ -1083,7 +1085,7 @@ if(this.debug){
            // color: color,
             opacity: .5,
             transparent: true,
-            map: this.resource1,
+            map: this.resource2,
             //map: this.renderer.renderTarget2.texture,
             
         });
@@ -1231,20 +1233,20 @@ if(this.debug){
 
       const racetrackShape2 = new THREE.Shape();
 
-      racetrackShape2.moveTo(0, -130);
-      racetrackShape2.lineTo(10, -130);  
+      racetrackShape2.moveTo(0, -230);  
+      racetrackShape2.lineTo(10, -230);  //10/130
       racetrackShape2.lineTo(10, -110);   
-      racetrackShape2.lineTo(-5, -110); 
-      racetrackShape2.lineTo(-5, -130); 
+      racetrackShape2.lineTo(-10, -110); //-5/-110
+      racetrackShape2.lineTo(-10, -230); 
 
 
       const racetrackShape3 = new THREE.Shape();
 
-      racetrackShape3.moveTo(0, 130);
-      racetrackShape3.lineTo(10, 130);  
+      racetrackShape3.moveTo(0, 230);
+      racetrackShape3.lineTo(10, 230);  
       racetrackShape3.lineTo(10, 110);  
-      racetrackShape3.lineTo(-5, 110);  
-      racetrackShape3.lineTo(-5, 130); 
+      racetrackShape3.lineTo(-10, 110);  
+      racetrackShape3.lineTo(-10, 230); 
 
       const racetrackShape4 = new THREE.Shape();
 
@@ -1410,7 +1412,7 @@ if(this.debug){
     this.shaderMaterial5.uniforms.needsUpdate = true
 
 
-    this.tube = new THREE.Mesh(this.tubeGeo, this.redMaterial) 
+    this.tube = new THREE.Mesh(this.tubeGeo, this.shaderMaterial) 
     
     
     this.scene2.add(this.tube);
@@ -1509,7 +1511,7 @@ if(this.debug){
 
         this.resource2.wrapT = THREE.RepeatWrapping;
     
-        this.resource2.repeat.set(8,8)
+        this.resource2.repeat.set(36,64)
 
 
         this.resource6.wrapS = THREE.RepeatWrapping;
@@ -1675,7 +1677,7 @@ if(this.debug){
       this.objectsArray2.push(this.sphere2Clone) 
 
     
-    /* this.modelClone= this.model.clone()
+    this.modelClone= this.model.clone()
     this.modelClone.position.copy(positionOnCurve2.add(tangent2).add(normal).add(binormal))
     this.modelClone.scale.setScalar(1.0)
     this.scene2.add(this.modelClone)
@@ -1688,7 +1690,7 @@ if(this.debug){
     this.model2Clone.rotation.y += Math.random()
 
     this.treesArray.push(this.model2Clone)
-*/
+
     }
      
        } 
@@ -1750,10 +1752,10 @@ if(this.debug){
 
       //this.water.material.uniforms.time.value +=  this.time.delta * 1.5
 
-      this.shaderMaterial.uniforms.time.value +=  this.time.delta * 2.5
+      this.shaderMaterial.uniforms.time.value =  this.time.delta * 2.5 
  
-      this.shaderMaterial6.uniforms.time.value +=  this.time.delta * .5
-      this.shaderMaterial4.uniforms.time.value +=  this.time.elapsed * .0005
+      this.shaderMaterial6.uniforms.time.value =  this.time.delta * .5
+      this.shaderMaterial4.uniforms.time.value =  this.time.elapsed * .0005
 
       
       let currentPosition = 0; 
@@ -1816,10 +1818,11 @@ if(this.debug){
     this.derivativeTangent2 = this.spline.getTangentAt(t5).sub(this.tangent4).normalize();
  
     this.angle = Math.atan2(tangent.y , tangent.x );
-
+    
+    this.referenceVector = new THREE.Vector3(0,1,0)
 
     this.normal = new THREE.Vector3();
-    this.normal.crossVectors( tangent, tangent).normalize();
+    this.normal.crossVectors( this.referenceVector, tangent ).normalize();
 
     this.binormal = new THREE.Vector3();
     this.binormal.crossVectors(tangent, this.normal).normalize(); 
@@ -2029,7 +2032,7 @@ if (intersects2.length > 0) {
 
     if (this.arrowUpPressed ) {
 
-      this.model.position.copy( pos2.add(tangent).add(this.normal).add(this.binormal).add(offset2))
+      this.model.position.copy( pos2.add(tangent).add(this.binormal).add(this.normal).add(offset2))
   
       this.camera.instance.position.copy( pos.add(tangent).add(this.normal.add( offset )).add(this.binormal) )
 
@@ -2037,10 +2040,7 @@ if (intersects2.length > 0) {
 
       this.model.lookAt(   pos4   )
 
-      if(this.model.position.y <= this.normal.y){
-        this.model.rotation.y+=25
-        this.model.position.y += 25
-      }
+      
 
     
       /*this.treesArray.forEach((model2Clone, index) => {

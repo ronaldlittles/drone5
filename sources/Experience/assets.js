@@ -18,7 +18,7 @@ export default [
 
       {
         name: "fluffy",
-        source: "/assets/lava.jpg",
+        source: "/assets/border.png",
         type: "texture",
       },
 
@@ -51,7 +51,13 @@ export default [
         type: "texture",
       },
 
-      /*  {
+      {
+        name: "treeimage",
+        source: "/assets/whattextcouldbe.png",
+        type: "texture",
+      },
+
+     /*{
         name: "smokeModel",
         source: "/assets/smokeModel.glb",
         type: "gltfModel",
@@ -89,7 +95,7 @@ export default [
         type: "gltfModel",
       },
 
-         {
+      {
         name: "hdr",
         source: "/assets/snow1.hdr",
         type: "texture",
@@ -100,8 +106,7 @@ export default [
         source: "/assets/curly_palm.glb",
         type: "gltfModel",
       },
-      
-      
+       
       {
         name: "hexagon",
         source: "/assets/tiger.svg",
